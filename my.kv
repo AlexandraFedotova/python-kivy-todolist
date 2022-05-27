@@ -15,7 +15,7 @@
             opposite_colors: True
             elevation: 10
 
-            left_action_items: [["arrow-left", lambda x: app.set_screen('taskList')]]
+            left_action_items: [["arrow-left", lambda x: app.set_screen('tasksInCategory')]]
 
         MDBoxLayout:
             orientation: 'vertical'
@@ -44,12 +44,10 @@
                 pos_hint: {"center_x": 0.5, "center_y": 0.5}
 
                 on_release:
-                    root.create_task()
+                    root.create_task(app.current_category)
 
 #TwoLineAvatarIconListItem
 <TaskItem>:
-    id: task_item
-
     checkbox: checkbox
 
     on_release: app.create_task_only_screen(self)
@@ -64,24 +62,26 @@
 
 
 # MDScreen
-<TaskListScreen>:
-    name: 'taskList'
-    id: 'task_list_screen'
+<TasksInCategoryScreen>:
+    name: 'tasksInCategory'
 
     task_list: task_list
+    toolbar: toolbar
 
     on_pre_enter:
-        self.set_tasks_list()
+        self.set_tasks_list(app.current_category)
 
     MDBoxLayout:
         orientation: 'vertical'
 
         MDTopAppBar:
-            title: app.title
+            id: toolbar
+            title: 'Category'
             opposite_colors: True
             elevation: 10
 
             right_action_items: [["plus", lambda x: app.set_screen('taskCreation')]]
+            left_action_items: [["arrow-left", lambda x: app.set_screen('categoriesList')]]
 
         ScrollView:
             scroll_timeout: 100
@@ -92,9 +92,43 @@
                 id: task_list
                 padding: '2sp'
 
-<MyCard@MDCard>:
-    padding: '10sp'
-    size_hint_y: None
+#OneLineRightIconListItem
+<CategoryItem>:
+    on_release: app.show_tasks_in_categories_screen(self.text)
+
+    text: 'Category name'
+
+    IconRightWidget:
+        icon: "trash-can"
+        on_release: app.screen_manager.get_screen('categoriesList').show_dialog_delete_category(root)
+
+#MDScreen
+<CategoriesListScreen>:
+    name: 'categoriesList'
+
+    categories_list: categories_list
+
+    on_pre_enter: self.set_categories_list()
+
+    MDBoxLayout:
+        orientation: 'vertical'
+
+        MDTopAppBar:
+            title: app.title
+            opposite_colors: True
+            elevation: 10
+
+            right_action_items: [["plus", lambda x: root.show_dialog_create_category()]]
+
+        ScrollView:
+            scroll_timeout: 100
+            size_hint: 1, 1
+            do_scroll_x: False
+
+            MDList:
+                id: categories_list
+                padding: '2sp'
+
 
 <TaskOnlyScreen>:
     name: 'taskOnly'
@@ -102,12 +136,12 @@
     task_name: task_name
     task_description: task_description
     task_is_done: task_is_done
+    task_category: task_category
 
     MDBoxLayout:
         orientation: 'vertical'
 
         MDTopAppBar:
-            id: task_toolbar
             title: 'Task'
             opposite_colors: True
             elevation: 10
@@ -150,6 +184,22 @@
                     on_text: root.set_name()
 
             MDTextField:
+                id: task_category
+                mode: 'fill'
+                radius: 10, 10, 10, 10
+                multiline: False
+                write_tab: False
+                write_enter: False
+                fill_color_normal: 1, 1, 1, 1
+                text_color_normal: 0, 0, 0, 1
+                size_hint_x: None
+                width: root.width - 20
+                pos_hint_y: .5
+
+                on_text: root.set_category()
+
+
+            MDTextField:
                 id: task_description
                 mode: 'fill'
                 radius: 10, 10, 10, 10
@@ -165,10 +215,10 @@
 
 #ScreenManager
 <MainApp>:
-    TaskListScreen:
-        id: 'task_list_screen'
+    CategoriesListScreen:
+
+    TasksInCategoryScreen:
 
     TaskCreationScreen:
-        id: 'task_creation_screen'
 
 
