@@ -1,4 +1,4 @@
 .idea/
 __pycache__/
 tasks-reserve.txt
-tasks.txt
+data/tasks.txt

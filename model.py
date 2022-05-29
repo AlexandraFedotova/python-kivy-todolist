@@ -229,9 +229,7 @@ class Notebook:
             return True
 
         categories_names = data.get('categories_names')
-        print("categories names " + str(categories_names))
         tasks_ids_in_categories = data.get('tasks_ids_in_categories')
-        print(tasks_ids_in_categories)
 
         tasks_info = data.get('tasks')
 
@@ -252,8 +250,6 @@ class Notebook:
                 if category_name not in categories_names:
                     print("We have a big Error ")
 
-        print(self.__tasks_ids_in_categories == tasks_ids_in_categories)
-        self.show_notebook()
         return True
 
 

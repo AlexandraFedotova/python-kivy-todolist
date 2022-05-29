@@ -12,12 +12,6 @@ from kivymd.uix.textfield import MDTextField
 from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.menu import MDDropdownMenu
 
-from kivy.core.window import Window
-
-Window.size = (350, 622)
-
-notebook = Notebook()
-
 
 class MainApp(ScreenManager):
     pass
@@ -48,6 +42,7 @@ class CategoryItem(OneLineRightIconListItem):
 class CategoriesListScreen(MDScreen):
     categories_list = ObjectProperty()
     dialog = None
+    objApp = None
 
     def close_dialog(self, obj=None):
         try:
@@ -56,15 +51,17 @@ class CategoriesListScreen(MDScreen):
             print('dialog dismiss failed')
 
     def create_category(self, obj=None):
+        objApp = MDApp.get_running_app()
         if self.text_field.text.strip() == '':
             self.text_field.hint_text = 'Ведите название категории!'
         else:
-            notebook.create_category(category_name=self.text_field.text)
-            notebook.write_tasks_in_file()
+            self.objApp.notebook.create_category(category_name=self.text_field.text)
+            self.objApp.notebook.write_tasks_in_file(self.objApp.path_to_data)
             self.set_categories_list()
             self.close_dialog()
 
     def delete_category(self, obj=None):
+        objApp = MDApp.get_running_app()
         category_for_transfer_tasks_from_deleted_category = ''
         for item in self.items:
             if item.check.active is True:
@@ -72,9 +69,9 @@ class CategoriesListScreen(MDScreen):
         if category_for_transfer_tasks_from_deleted_category == "Без переноса задач":
             category_for_transfer_tasks_from_deleted_category = None
         try:
-            notebook.remove_category(name_of_required_category=self.category_for_deleting,
+            self.objApp.notebook.remove_category(name_of_required_category=self.category_for_deleting,
                                      name_of_category_to_transfer_tasks_from_deleted=category_for_transfer_tasks_from_deleted_category)
-            notebook.write_tasks_in_file()
+            self.objApp.notebook.write_tasks_in_file(self.objApp.path_to_data)
             self.set_categories_list()
             self.close_dialog()
         except Exception:
@@ -95,9 +92,10 @@ class CategoriesListScreen(MDScreen):
         self.dialog.open()
 
     def show_dialog_delete_category(self, instance):
+        self.objApp = MDApp.get_running_app()
         self.category_for_deleting = instance.text
         self.items = [ItemConfirm(text='Без переноса задач')]
-        for category_name in notebook.get_categories_list():
+        for category_name in self.objApp.notebook.get_categories_list():
             if category_name != self.category_for_deleting:
                 self.items.append(ItemConfirm(text=category_name))
         self.items[0].set_icon()
@@ -114,8 +112,9 @@ class CategoriesListScreen(MDScreen):
         self.dialog.open()
 
     def set_categories_list(self):
+        self.objApp = MDApp.get_running_app()
         self.categories_list.clear_widgets()
-        for category_name in notebook.get_categories_list():
+        for category_name in self.objApp.notebook.get_categories_list():
             self.categories_list.add_widget(CategoryItem(category_name))
 
     def __init__(self, **kwargs):
@@ -136,6 +135,7 @@ class TaskItem(TwoLineAvatarIconListItem):
 class TasksInCategoryScreen(MDScreen):
     task_list = ObjectProperty()
     toolbar = ObjectProperty()
+    objApp = None
 
     dialog = None
 
@@ -146,43 +146,47 @@ class TasksInCategoryScreen(MDScreen):
             print('dialog dismiss failed')
 
     def rename_category(self, obj=None):
+        self.objApp = MDApp.get_running_app()
         current_category_name = self.category
         new_category_name = self.text_field.text
-        notebook.rename_category(name_of_required_category=current_category_name,
+        self.objApp.notebook.rename_category(name_of_required_category=current_category_name,
                                  new_category_name=new_category_name)
-        notebook.write_tasks_in_file()
+        self.objApp.notebook.write_tasks_in_file(self.objApp.path_to_data)
         self.toolbar.title = new_category_name
         self.close_dialog()
 
     def create_task(self, obj=None):
+        self.objApp = MDApp.get_running_app()
         if self.text_field_name.text.strip() == '':
             self.text_field_name.hint_text = 'Введите название задачи'
         else:
             new_task = Task(name=self.text_field_name.text, description=self.text_field_description.text,
                             category=self.category)
-            notebook.add_task(new_task)
-            notebook.write_tasks_in_file()
+            self.objApp.notebook.add_task(new_task)
+            self.objApp.notebook.write_tasks_in_file(self.objApp.path_to_data)
             self.set_tasks_list(self.category)
             self.text_field_name.text = ''
             self.text_field_description.text = ''
 
     def delete_task(self, obj=None):
+        self.objApp = MDApp.get_running_app()
         try:
-            notebook.remove_task_by_id(id_of_required_task=self.id_task_for_deleting)
-            notebook.write_tasks_in_file()
+            self.objApp.notebook.remove_task_by_id(id_of_required_task=self.id_task_for_deleting)
+            self.objApp.notebook.write_tasks_in_file(self.objApp.path_to_data)
             self.set_tasks_list(category=self.category)
             self.close_dialog()
         except Exception:
             print('Error with deleting task')
 
     def set_task_state(self, instance):
+        self.objApp = MDApp.get_running_app()
         checkbox_state = instance.checkbox.state
         task_id = instance.task_id
         if checkbox_state == 'down':
-            notebook.mark_task_done(task_id)
+            self.objApp.notebook.mark_task_done(task_id)
         else:
-            notebook.mark_task_undone(task_id)
-        notebook.write_tasks_in_file()
+            self.objApp.notebook.mark_task_undone(task_id)
+        self.objApp.notebook.write_tasks_in_file(self.objApp.path_to_data)
         self.set_tasks_list(self.category)
 
     def show_rename_category_dialog(self, obj=None):
@@ -228,18 +232,18 @@ class TasksInCategoryScreen(MDScreen):
         pass
 
     def set_tasks_list(self, category):
+        self.objApp = MDApp.get_running_app()
         self.category = category
         self.toolbar.title = category
         self.task_list.clear_widgets()
 
-        for task_item in notebook.get_tasks_from_category(category):
+        for task_item in self.objApp.notebook.get_tasks_from_category(category):
             # task_item - task id
-            task = notebook.get_task_by_id(id_of_required_task=task_item)
+            task = self.objApp.notebook.get_task_by_id(id_of_required_task=task_item)
             self.task_list.add_widget(TaskItem(task_id=task_item,
                                                task_name=task.get_name(),
                                                task_description=task.get_description(),
                                                task_is_done=task.is_done()))
-        notebook.show_notebook()
 
     def __init__(self, **kwargs):
         super(TasksInCategoryScreen, self).__init__(**kwargs)
@@ -252,6 +256,8 @@ class TaskOnlyScreen(MDScreen):
     task_is_done = ObjectProperty()
     task_category = ObjectProperty()
     toolbar = ObjectProperty()
+
+    objApp = None
 
     def allow_task_editing(self):
         self.toolbar.right_action_items = [['close', lambda x: self.cancel_changes()],['check', lambda x: self.edit_task()]]
@@ -269,48 +275,53 @@ class TaskOnlyScreen(MDScreen):
         self.set_category()
 
     def cancel_changes(self):
+        self.objApp = MDApp.get_running_app()
         self.toolbar.right_action_items = [["pencil-outline", lambda x: self.allow_task_editing()]]
         self.task_name.disabled = True
         self.task_description.disabled = True
         self.task_category.disabled = True
-        task = notebook.get_task_by_id(self.task_id)
+        task = self.objApp.notebook.get_task_by_id(self.task_id)
         self.task_name.text = task.get_name()
         self.task_description.text = task.get_description()
         self.task_category.text = task.get_category()
 
     def set_name(self):
+        self.objApp = MDApp.get_running_app()
         new_task_name = self.task_name.text.strip()
-        old_task_name = notebook.get_task_by_id(id_of_required_task=self.task_id).get_name()
+        old_task_name = self.objApp.notebook.get_task_by_id(id_of_required_task=self.task_id).get_name()
         if new_task_name != old_task_name:
-            notebook.set_task_name(id_of_required_task=self.task_id,
+            self.objApp.notebook.set_task_name(id_of_required_task=self.task_id,
                                    new_name=new_task_name)
-            notebook.write_tasks_in_file()
+            self.objApp.notebook.write_tasks_in_file(self.objApp.path_to_data)
             self.toolbar.title = new_task_name
 
     def set_description(self):
+        self.objApp = MDApp.get_running_app()
         new_task_description = self.task_description.text.strip()
-        old_task_description = notebook.get_task_by_id(id_of_required_task=self.task_id).get_description()
+        old_task_description = self.objApp.notebook.get_task_by_id(id_of_required_task=self.task_id).get_description()
         if new_task_description != old_task_description:
-            notebook.set_task_description(id_of_required_task=self.task_id,
+            self.objApp.notebook.set_task_description(id_of_required_task=self.task_id,
                                           new_description=new_task_description)
-            notebook.write_tasks_in_file()
+            self.objApp.notebook.write_tasks_in_file(self.objApp.path_to_data)
 
     def set_is_done(self):
+        self.objApp = MDApp.get_running_app()
         is_done = self.task_is_done.active
         if is_done:
-            notebook.mark_task_done(id_of_required_task=self.task_id)
+            self.objApp.notebook.mark_task_done(id_of_required_task=self.task_id)
         else:
-            notebook.mark_task_undone(id_of_required_task=self.task_id)
-        notebook.write_tasks_in_file()
+            self.objApp.notebook.mark_task_undone(id_of_required_task=self.task_id)
+        self.objApp.notebook.write_tasks_in_file(self.objApp.path_to_data)
 
     def set_category(self):
+        self.objApp = MDApp.get_running_app()
         new_category = self.task_category.text
-        old_category = notebook.get_task_by_id(self.task_id).get_category()
+        old_category = self.objApp.notebook.get_task_by_id(self.task_id).get_category()
 
         if new_category != old_category:
-            notebook.set_task_category(id_of_required_task=self.task_id,
+            self.objApp.notebook.set_task_category(id_of_required_task=self.task_id,
                                        name_of_required_category=new_category)
-            notebook.write_tasks_in_file()
+            self.objApp.notebook.write_tasks_in_file(self.objApp.path_to_data)
 
     def show_category_menu(self):
         try:
@@ -321,11 +332,12 @@ class TaskOnlyScreen(MDScreen):
             pass
 
     def build(self, instance):
+        self.objApp = MDApp.get_running_app()
         self.task_id = instance.task_id
         task_name = instance.text
         task_description = instance.secondary_text
         task_is_done = True if instance.checkbox.state == 'down' else False
-        task_category = notebook.get_task_by_id(self.task_id).get_category()
+        task_category = self.objApp.notebook.get_task_by_id(self.task_id).get_category()
         self.toolbar.title = task_name
         self.task_name.text = task_name
         self.task_description.text = task_description
@@ -334,6 +346,7 @@ class TaskOnlyScreen(MDScreen):
 
     def __init__(self, instance, **kwargs):
         super(TaskOnlyScreen, self).__init__(**kwargs)
+        self.objApp = MDApp.get_running_app()
         self.task_id = ''
         menu_items = [
             {
@@ -341,7 +354,7 @@ class TaskOnlyScreen(MDScreen):
                 "text": category_name,
                 "height": dp(50),
                 "on_release": lambda x=category_name: self.set_item(x)
-            } for category_name in notebook.get_categories_list()
+            } for category_name in self.objApp.notebook.get_categories_list()
         ]
         self.category_menu = MDDropdownMenu(
             caller=self.task_category,
@@ -361,6 +374,7 @@ class TaskOnlyScreen(MDScreen):
 
 class MyApp(MDApp):
     dialog = None
+    notebook = None
 
     def set_screen(self, screen_name):
         if self.screen_manager.has_screen(screen_name):
@@ -380,27 +394,29 @@ class MyApp(MDApp):
     def show_tasks_in_categories_screen(self, category):
         self.current_category = category
         self.set_screen('tasksInCategory')
-        print(self.current_category)
 
     def on_start(self):
         self.categoriesListScreen.set_categories_list()
 
     def on_stop(self):
-        notebook.write_tasks_in_file()
+        self.notebook.write_tasks_in_file(self.path_to_data)
 
     def __init__(self, **kwargs):
         self.screen_manager = None
         self.categoriesListScreen = None
         self.tasksInCategoryScreen = None
         self.current_category = 'Base'
+        self.path_to_data = 'data/tasks.txt'
         super(MyApp, self).__init__(**kwargs)
 
     def build(self):
-        notebook.read_tasks_from_file()
+        self.notebook = Notebook()
+        self.notebook.read_tasks_from_file(self.path_to_data)
         self.title = "Task list"
         self.screen_manager = MainApp()
         self.categoriesListScreen = self.screen_manager.get_screen('categoriesList')
         self.tasksInCategoryScreen = self.screen_manager.get_screen('tasksInCategory')
+
 
         return self.screen_manager
 
