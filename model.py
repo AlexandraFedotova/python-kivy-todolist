@@ -1,6 +1,5 @@
 import datetime
 import json
-import time
 
 
 class Task:
@@ -41,15 +40,15 @@ class Task:
     def show_task(self):
         description = "Task name: " + self.__name + ", is done: " + str(self.__is_done) + \
                       ", task description: " + self.__description + ", task category: " + \
-                        self.__category
+                      self.__category
         return description
 
     def get_task_data(self):
         data_task = {
-            "name"       : self.__name,
+            "name": self.__name,
             "description": self.__description,
-            "is_done"    : self.__is_done,
-            "category"   : self.__category
+            "is_done": self.__is_done,
+            "category": self.__category
         }
         return data_task
 
@@ -87,10 +86,10 @@ class Notebook:
             for task_id in self.__tasks_ids_in_categories[name_of_required_category]:
                 task = self.get_task_by_id(task_id)
                 if self.is_task(task):
-                    if task.is_done is True:
+                    if task.is_done() is True:
                         tasks_done[task_id] = task
                     else:
-                        tasks[task_id]= task
+                        tasks[task_id] = task
         tasks.update(tasks_done)
         return tasks  # dict
 
@@ -174,7 +173,7 @@ class Notebook:
         id_of_required_task = str(id_of_required_task).strip()
         task = self.get_task_by_id(id_of_required_task)
         if self.is_task(task):
-           task.mark_undone()
+            task.mark_undone()
 
     def set_task_name(self, id_of_required_task, new_name):
         id_of_required_task = str(id_of_required_task).strip()
@@ -191,9 +190,7 @@ class Notebook:
     # todo: add error handling
     # todo? add writing category list, for opportunity of existing empty category
     def write_tasks_in_file(self, filename='tasks.txt'):
-        data = {}
-        data["categories_names"] = self.__categories_names
-        data["tasks_ids_in_categories"] = self.__tasks_ids_in_categories
+        data = {"categories_names": self.__categories_names, "tasks_ids_in_categories": self.__tasks_ids_in_categories}
 
         data_tasks = {}
         for task_id in self.__tasks:
