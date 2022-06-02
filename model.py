@@ -221,9 +221,13 @@ class Notebook:
     # todo: Add error handling
     # todo? add reading category list, for opportunity of existing empty category
     def read_tasks_from_file(self, filename='tasks.txt'):
-        file = open(filename, mode='r', encoding='utf-8')
-        data = json.load(file)
-        file.close()
+        try:
+            file = open(filename, mode='r', encoding='utf-8')
+            data = json.load(file)
+            file.close()
+        except Exception:
+            print("Error with tasks reading")
+            return False
 
         if data == "":
             return True
