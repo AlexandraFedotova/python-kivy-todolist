@@ -58,7 +58,7 @@ class MyApp(MDApp):
         self.notebook = Notebook()
         self.loadAllKvFiles(os.path.join(self.directory, 'kv_view'))
         self.notebook.read_tasks_from_file(self.path_to_data)
-        self.title = "Task list"
+        self.title = "Список задач"
         self.screen_manager = MainApp()
         self.categoriesListScreen = self.screen_manager.get_screen('categoriesList')
         self.tasksInCategoryScreen = self.screen_manager.get_screen('tasksInCategory')
