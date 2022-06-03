@@ -1,0 +1,51 @@
+#:kivy 2.0
+
+#TwoLineIconListItem
+<TaskItem>:
+    checkbox: checkbox
+
+    on_release: app.create_task_only_screen(self)
+
+    text: 'Task name'
+    secondary_text: 'Task description'
+
+    IconRightWidget:
+        icon: "trash-can-outline"
+        on_release:
+            app.screen_manager.get_screen('tasksInCategory').show_delete_task_dialog(root)
+
+    CheckboxLeftWidget:
+        id: checkbox
+        on_release:
+            app.screen_manager.get_screen('tasksInCategory').set_task_state(root)
+
+# MDScreen
+<TasksInCategoryScreen>:
+    name: 'tasksInCategory'
+
+    task_list: task_list
+    toolbar: toolbar
+
+    on_pre_enter:
+        self.set_tasks_list(app.current_category)
+
+    MDBoxLayout:
+        orientation: 'vertical'
+
+        MDToolbar:
+            id: toolbar
+            title: 'Category'
+            opposite_colors: True
+            elevation: 10
+
+            right_action_items: [["pencil-outline", lambda x: root.show_rename_category_dialog()],["plus", lambda x: root.show_create_task_dialog()]]
+            left_action_items: [["arrow-left", lambda x: app.set_screen('categoriesList')]]
+
+        ScrollView:
+            scroll_timeout: 100
+            size_hint: 1, 1
+            do_scroll_x: False
+
+            MDList:
+                id: task_list
+                padding: '2sp'

@@ -1,0 +1,48 @@
+#:kivy 2.0
+
+#OneLineAvatarIconListItem
+<ItemConfirm>:
+    check: check
+    on_release: root.set_icon()
+
+    CheckboxLeftWidget:
+        id: check
+        group: "check"
+
+#OneLineRightIconListItem
+<CategoryItem>:
+    on_release: app.show_tasks_in_categories_screen(self.text)
+
+    text: 'Category name'
+
+    IconRightWidget:
+        icon: "trash-can-outline"
+        on_release:
+            app.screen_manager.get_screen('categoriesList').show_dialog_delete_category(root)
+
+#MDScreen
+<CategoriesListScreen>:
+    name: 'categoriesList'
+
+    categories_list: categories_list
+
+    on_pre_enter: self.set_categories_list()
+
+    MDBoxLayout:
+        orientation: 'vertical'
+
+        MDToolbar:
+            title: app.title
+            opposite_colors: True
+            elevation: 10
+
+            right_action_items: [["plus", lambda x: root.show_dialog_create_category()]]
+
+        ScrollView:
+            scroll_timeout: 100
+            size_hint: 1, 1
+            do_scroll_x: False
+
+            MDList:
+                id: categories_list
+                padding: '2sp'
