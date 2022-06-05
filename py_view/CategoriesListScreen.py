@@ -1,5 +1,3 @@
-import time
-
 from kivy.properties import ObjectProperty
 from kivymd.app import MDApp
 from kivymd.uix.boxlayout import MDBoxLayout
@@ -87,7 +85,6 @@ class CategoriesListScreen(MDScreen):
         self.dialog.open()
 
     def show_dialog_delete_category(self, instance):
-        self.instance_for_deleting = instance
         self.category_for_deleting = instance.text
         self.items = [ItemConfirm(text='Без переноса задач')]
         for category_name in self.objApp.get_categories_list():

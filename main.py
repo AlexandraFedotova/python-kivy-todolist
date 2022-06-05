@@ -13,7 +13,6 @@ from py_view.MainApp import MainApp
 
 class MyApp(MDApp, Notebook):
     dialog = None
-    #notebook = None
 
     def set_screen(self, screen_name):
         if self.screen_manager.has_screen(screen_name):
@@ -56,14 +55,12 @@ class MyApp(MDApp, Notebook):
                 Builder.load_file(kv_file)
 
     def build(self):
-        self.theme_cls.primary_palette = "Cyan"
-        self.theme_cls.theme_style = "Light"
-
-        #self.notebook = Notebook()
-        self.loadAllKvFiles(os.path.join(self.directory, 'kv_view'))
-        self.read_tasks_from_file(self.path_to_data)
         self.title = "Список задач"
         self.icon = "./data/images/logo.png"
+        self.theme_cls.primary_palette = "Cyan"
+        self.theme_cls.theme_style = "Light"
+        self.loadAllKvFiles(os.path.join(self.directory, 'kv_view'))
+        self.read_tasks_from_file(self.path_to_data)
 
         self.screen_manager = MainApp()
         self.categoriesListScreen = self.screen_manager.get_screen('categoriesList')

@@ -32,7 +32,7 @@ class TasksInCategoryScreen(MDScreen):
         try:
             self.dialog.dismiss()
         except Exception:
-             ('dialog dismiss failed')
+            print('dialog dismiss failed')
 
     def rename_category(self, obj=None):
         self.objApp = MDApp.get_running_app()
@@ -119,7 +119,6 @@ class TasksInCategoryScreen(MDScreen):
             buttons=[close_button, remove_button]
         )
         self.dialog.open()
-        pass
 
     def set_tasks_list(self, category):
         self.objApp = MDApp.get_running_app()

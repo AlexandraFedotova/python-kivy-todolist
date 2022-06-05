@@ -52,7 +52,7 @@ class TaskOnlyScreen(MDScreen):
         old_task_description = self.objApp.get_task_by_id(id_of_required_task=self.task_id).get_description()
         if new_task_description != old_task_description:
             self.objApp.set_task_description(id_of_required_task=self.task_id,
-                                                      new_description=new_task_description)
+                                             new_description=new_task_description)
             self.objApp.write_tasks_in_file(self.objApp.path_to_data)
 
     def set_is_done(self):
