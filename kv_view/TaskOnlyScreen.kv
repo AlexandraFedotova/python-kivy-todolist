@@ -6,80 +6,56 @@
 
     task_name: task_name
     task_description: task_description
-    task_is_done: task_is_done
     task_category: task_category
     toolbar: toolbar
 
     MDBoxLayout:
         orientation: 'vertical'
 
-        MDToolbar:
+        MDTopAppBar:
             id: toolbar
             title: 'Task'
             opposite_colors: True
             elevation: 10
 
             left_action_items: [["arrow-left", lambda x: app.remove_task_only_screen()]]
-            right_action_items: [["pencil-outline", lambda x: root.allow_task_editing()]]
 
         MDGridLayout:
             cols: 1
             padding: '10sp'
             spacing: '10sp'
 
-            MDBoxLayout:
-                size_hint: 1, None
-                height: root.task_name.height
-                padding: 0
-                spacing: 0
-
-                MDCheckbox:
-                    id: task_is_done
-                    on_release: root.set_is_done()
-                    size_hint_x: None
-                    width: 50
-                    pos_hint_y: .5
-
-                MDTextField:
-                    id: task_name
-                    mode: 'fill'
-                    radius: 10, 10, 10, 10
-                    multiline: True
-                    write_tab: False
-                    font_size: '20sp'
-                    fill_color_normal: 1, 1, 1, 1
-                    text_color_normal: 0, 0, 0, 1
-                    size_hint_x: None
-                    width: root.width - 80
-                    pos_hint_y: .5
-                    disabled: True
-
             MDTextField:
                 id: task_category
-                mode: 'fill'
-                radius: 10, 10, 10, 10
-                multiline: False
+                multiline: True
                 write_tab: False
-                fill_color_normal: 1, 1, 1, 1
-                text_color_normal: 0, 0, 0, 1
-                size_hint_x: None
-                width: root.width - 20
-                pos_hint_y: .5
 
-                disabled: True
+                text_color_normal: 0, 0, 0, 1
+                text_color_focus: 0, 0, 0, 1
+                line_color_normal: 0, 0, 0, 1
+                line_color_focus: 0, 0, 0, 1
+
                 on_focus: root.show_category_menu()
 
+            MDTextField:
+                id: task_name
+                multiline: True
+                write_tab: False
+
+                text_color_normal: 0, 0, 0, 1
+                text_color_focus: 0, 0, 0, 1
+                line_color_normal: 0, 0, 0, 1
+                line_color_focus: 0, 0, 0, 1
+
+                on_focus: root.allow_task_editing()
 
             MDTextField:
                 id: task_description
-                mode: 'fill'
-                radius: 10, 10, 10, 10
                 multiline: True
-                font_size: '18sp'
-                size_hint_x: None
-                width: root.width - 20
 
                 text_color_normal: 0, 0, 0, 1
-                fill_color_normal: 1, 1, 1, 1
+                text_color_focus: 0, 0, 0, 1
+                line_color_normal: 0, 0, 0, 1
+                line_color_focus: 0, 0, 0, 1
 
-                disabled: True
+                on_focus: root.allow_task_editing()

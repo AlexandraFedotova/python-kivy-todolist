@@ -38,9 +38,9 @@ class TasksInCategoryScreen(MDScreen):
         self.objApp = MDApp.get_running_app()
         current_category_name = self.category
         new_category_name = self.text_field.text
-        self.objApp.notebook.rename_category(name_of_required_category=current_category_name,
+        self.objApp.rename_category(name_of_required_category=current_category_name,
                                              new_category_name=new_category_name)
-        self.objApp.notebook.write_tasks_in_file(self.objApp.path_to_data)
+        self.objApp.write_tasks_in_file(self.objApp.path_to_data)
         self.toolbar.title = new_category_name
         self.close_dialog()
 
@@ -51,8 +51,8 @@ class TasksInCategoryScreen(MDScreen):
         else:
             new_task = Task(name=self.text_field_name.text, description=self.text_field_description.text,
                             category=self.category)
-            self.objApp.notebook.add_task(new_task)
-            self.objApp.notebook.write_tasks_in_file(self.objApp.path_to_data)
+            self.objApp.add_task(new_task)
+            self.objApp.write_tasks_in_file(self.objApp.path_to_data)
             self.set_tasks_list(self.category)
             self.text_field_name.text = ''
             self.text_field_description.text = ''
@@ -60,8 +60,8 @@ class TasksInCategoryScreen(MDScreen):
     def delete_task(self, obj=None):
         self.objApp = MDApp.get_running_app()
         try:
-            self.objApp.notebook.remove_task_by_id(id_of_required_task=self.id_task_for_deleting)
-            self.objApp.notebook.write_tasks_in_file(self.objApp.path_to_data)
+            self.objApp.remove_task_by_id(id_of_required_task=self.id_task_for_deleting)
+            self.objApp.write_tasks_in_file(self.objApp.path_to_data)
             self.set_tasks_list(category=self.category)
             self.close_dialog()
         except Exception:
@@ -72,10 +72,10 @@ class TasksInCategoryScreen(MDScreen):
         checkbox_state = instance.checkbox.state
         task_id = instance.task_id
         if checkbox_state == 'down':
-            self.objApp.notebook.mark_task_done(task_id)
+            self.objApp.mark_task_done(task_id)
         else:
-            self.objApp.notebook.mark_task_undone(task_id)
-        self.objApp.notebook.write_tasks_in_file(self.objApp.path_to_data)
+            self.objApp.mark_task_undone(task_id)
+        self.objApp.write_tasks_in_file(self.objApp.path_to_data)
         self.set_tasks_list(self.category)
 
     def show_rename_category_dialog(self, obj=None):
@@ -97,7 +97,8 @@ class TasksInCategoryScreen(MDScreen):
         self.create_button = MDFlatButton(text='Создать', on_release=self.create_task)
         content = MDBoxLayout(orientation='vertical', size_hint_y=None, height='150sp')
         self.text_field_name = MDTextField(hint_text='Имя задачи', write_tab=False)
-        self.text_field_description = MDTextField(hint_text='Описание задачи', multiline=True, max_height='100sp')
+        self.text_field_description = MDTextField(hint_text='Описание задачи', multiline=True)
+        self.text_field_description.max_height = self.text_field_description.minimum_height*3.5
         content.add_widget(self.text_field_name)
         content.add_widget(self.text_field_description)
         self.dialog = MDDialog(
@@ -118,7 +119,6 @@ class TasksInCategoryScreen(MDScreen):
             buttons=[close_button, remove_button]
         )
         self.dialog.open()
-        pass
 
     def set_tasks_list(self, category):
         self.objApp = MDApp.get_running_app()
@@ -126,9 +126,9 @@ class TasksInCategoryScreen(MDScreen):
         self.toolbar.title = category
         self.task_list.clear_widgets()
 
-        for task_item in self.objApp.notebook.get_tasks_from_category(category):
+        for task_item in self.objApp.get_tasks_from_category(category):
             # task_item - task id
-            task = self.objApp.notebook.get_task_by_id(id_of_required_task=task_item)
+            task = self.objApp.get_task_by_id(id_of_required_task=task_item)
             self.task_list.add_widget(TaskItem(task_id=task_item,
                                                task_name=task.get_name(),
                                                task_description=task.get_description(),

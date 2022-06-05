@@ -14,7 +14,6 @@
     on_release: app.show_tasks_in_categories_screen(self.text)
 
     text: 'Category name'
-
     IconRightWidget:
         icon: "trash-can-outline"
         on_release:
@@ -31,7 +30,7 @@
     MDBoxLayout:
         orientation: 'vertical'
 
-        MDToolbar:
+        MDTopAppBar:
             title: app.title
             opposite_colors: True
             elevation: 10

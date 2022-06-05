@@ -11,9 +11,8 @@ from py_view.CategoriesListScreen import CategoriesListScreen
 from py_view.MainApp import MainApp
 
 
-class MyApp(MDApp):
+class MyApp(MDApp, Notebook):
     dialog = None
-    notebook = None
 
     def set_screen(self, screen_name):
         if self.screen_manager.has_screen(screen_name):
@@ -27,6 +26,7 @@ class MyApp(MDApp):
     def remove_task_only_screen(self):
         if self.screen_manager.has_screen('taskOnly'):
             screen = self.screen_manager.get_screen('taskOnly')
+            screen.edit_task()
             self.set_screen('tasksInCategory')
             self.screen_manager.remove_widget(screen)
 
@@ -38,7 +38,7 @@ class MyApp(MDApp):
         self.categoriesListScreen.set_categories_list()
 
     def on_stop(self):
-        self.notebook.write_tasks_in_file(self.path_to_data)
+        self.write_tasks_in_file(self.path_to_data)
 
     def __init__(self, **kwargs):
         self.screen_manager = None
@@ -55,10 +55,13 @@ class MyApp(MDApp):
                 Builder.load_file(kv_file)
 
     def build(self):
-        self.notebook = Notebook()
-        self.loadAllKvFiles(os.path.join(self.directory, 'kv_view'))
-        self.notebook.read_tasks_from_file(self.path_to_data)
         self.title = "Список задач"
+        self.icon = "./data/images/logo.png"
+        self.theme_cls.primary_palette = "Cyan"
+        self.theme_cls.theme_style = "Light"
+        self.loadAllKvFiles(os.path.join(self.directory, 'kv_view'))
+        self.read_tasks_from_file(self.path_to_data)
+
         self.screen_manager = MainApp()
         self.categoriesListScreen = self.screen_manager.get_screen('categoriesList')
         self.tasksInCategoryScreen = self.screen_manager.get_screen('tasksInCategory')
