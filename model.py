@@ -1,5 +1,6 @@
 import datetime
 import json
+import time
 
 
 class Task:
@@ -78,7 +79,6 @@ class Notebook:
         return self.__categories_names
 
     def get_tasks_from_category(self, name_of_required_category):
-        # todo: add tasks sorting
         name_of_required_category = str(name_of_required_category).strip()
         tasks = {}
         tasks_done = {}
@@ -91,27 +91,27 @@ class Notebook:
                     else:
                         tasks[task_id] = task
         tasks.update(tasks_done)
-        return tasks  # dict
+        return tasks
 
-    def set_task_category(self, id_of_required_task, name_of_required_category):
-        name_of_required_category = str(name_of_required_category).strip()
+    def set_task_category(self, id_of_required_task, new_category):
+        new_category = str(new_category).strip()
         id_of_required_task = str(id_of_required_task).strip()
 
         task = self.get_task_by_id(id_of_required_task)
         if self.is_task(task):
             old_category = task.get_category()
-            if old_category == name_of_required_category:
+            if old_category == new_category:
                 return
-            task.set_category(name_of_required_category)
+            task.set_category(new_category)
             self.__tasks_ids_in_categories[old_category].remove(id_of_required_task)
-            self.create_category(name_of_required_category)
-            self.__tasks_ids_in_categories[name_of_required_category].append(id_of_required_task)
+            self.create_category(new_category)
+            self.__tasks_ids_in_categories[new_category].append(id_of_required_task)
 
     def rename_category(self, name_of_required_category, new_category_name):
         name_of_required_category = str(name_of_required_category).strip()
         new_category_name = str(new_category_name).strip()
 
-        tasks = self.get_tasks_from_category(name_of_required_category)  # dict
+        tasks = self.get_tasks_from_category(name_of_required_category)
         for task in tasks:
             self.set_task_category(task, new_category_name)
 
@@ -121,17 +121,18 @@ class Notebook:
             self.__categories_names.append(new_category_name)
             self.__tasks_ids_in_categories[new_category_name] = []
 
-    def remove_category(self, name_of_required_category, name_of_category_to_transfer_tasks_from_deleted=None):
+    def remove_category(self, name_of_required_category, category_name_to_replace=None):
         name_of_required_category = str(name_of_required_category).strip()
-        name_of_category_to_transfer_tasks_from_deleted = str(name_of_category_to_transfer_tasks_from_deleted).strip()
+
 
         tasks = self.get_tasks_from_category(name_of_required_category)
-        if name_of_category_to_transfer_tasks_from_deleted == 'None':
+        if category_name_to_replace is None:
             for task in tasks:
                 self.remove_task_by_id(task)
         else:
             for task in tasks:
-                self.set_task_category(task, name_of_category_to_transfer_tasks_from_deleted)
+                category_name_to_replace = str(category_name_to_replace).strip()
+                self.set_task_category(task, category_name_to_replace)
         self.__categories_names.remove(name_of_required_category)
         self.__tasks_ids_in_categories.pop(name_of_required_category)
 
@@ -160,9 +161,6 @@ class Notebook:
     def get_tasks(self):
         return self.__tasks
 
-    def get_tasks_array(self):
-        return self.__tasks.values()
-
     def mark_task_done(self, id_of_required_task):
         id_of_required_task = str(id_of_required_task).strip()
         task = self.get_task_by_id(id_of_required_task)
@@ -190,7 +188,7 @@ class Notebook:
     # todo: add error handling
     # todo? add writing category list, for opportunity of existing empty category
     def write_tasks_in_file(self, filename='tasks.txt'):
-        data = {"categories_names": self.__categories_names, "tasks_ids_in_categories": self.__tasks_ids_in_categories}
+        data = {"categories_names": self.__categories_names}
 
         data_tasks = {}
         for task_id in self.__tasks:
@@ -201,6 +199,7 @@ class Notebook:
         file = open(filename, mode='w', encoding='utf-8')
         json.dump(data, file)
         file.close()
+        end_time = time.time()
         return True
 
     def show_notebook(self):
@@ -233,8 +232,6 @@ class Notebook:
             return True
 
         categories_names = data.get('categories_names')
-        tasks_ids_in_categories = data.get('tasks_ids_in_categories')
-
         tasks_info = data.get('tasks')
 
         for task_id in tasks_info:
@@ -250,9 +247,6 @@ class Notebook:
         if self.__categories_names != categories_names:
             for category_name in categories_names:
                 self.create_category(category_name)
-            for category_name in self.__categories_names:
-                if category_name not in categories_names:
-                    print("We have a big Error ")
 
         return True
 

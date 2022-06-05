@@ -1,3 +1,5 @@
+import time
+
 from kivy.properties import ObjectProperty
 from kivymd.app import MDApp
 from kivymd.uix.boxlayout import MDBoxLayout
@@ -42,20 +44,19 @@ class CategoriesListScreen(MDScreen):
             print('dialog dismiss failed')
 
     def create_category(self, obj=None):
-        objApp = MDApp.get_running_app()
-        if self.text_field.text.strip() == '':
-            self.text_field.hint_text = 'Ведите название категории!'
+        category_name = self.text_field.text.strip()
+        if category_name in self.objApp.get_categories_list():
+            self.text_field.hint_text = 'Такая категория уже есть!'
         else:
-            if self.text_field.text.strip() in objApp.notebook.get_categories_list():
-                self.text_field.hint_text = 'Такая категория уже есть!'
+            if category_name == "":
+                self.text_field.hint_text = 'Ведите название категории!'
             else:
-                self.objApp.notebook.create_category(category_name=self.text_field.text)
-                self.objApp.notebook.write_tasks_in_file(self.objApp.path_to_data)
-                self.set_categories_list()
+                self.objApp.create_category(category_name=self.text_field.text)
+                self.objApp.write_tasks_in_file(self.objApp.path_to_data)
+                self.categories_list.add_widget(CategoryItem(category_name))
                 self.close_dialog()
 
     def delete_category(self, obj=None):
-        objApp = MDApp.get_running_app()
         category_for_transfer_tasks_from_deleted_category = ''
         for item in self.items:
             if item.check.active is True:
@@ -63,9 +64,9 @@ class CategoriesListScreen(MDScreen):
         if category_for_transfer_tasks_from_deleted_category == "Без переноса задач":
             category_for_transfer_tasks_from_deleted_category = None
         try:
-            self.objApp.notebook.remove_category(name_of_required_category=self.category_for_deleting,
-                                     name_of_category_to_transfer_tasks_from_deleted=category_for_transfer_tasks_from_deleted_category)
-            self.objApp.notebook.write_tasks_in_file(self.objApp.path_to_data)
+            self.objApp.remove_category(name_of_required_category=self.category_for_deleting,
+                                        category_name_to_replace=category_for_transfer_tasks_from_deleted_category)
+            self.objApp.write_tasks_in_file(self.objApp.path_to_data)
             self.set_categories_list()
             self.close_dialog()
         except Exception:
@@ -86,10 +87,10 @@ class CategoriesListScreen(MDScreen):
         self.dialog.open()
 
     def show_dialog_delete_category(self, instance):
-        self.objApp = MDApp.get_running_app()
+        self.instance_for_deleting = instance
         self.category_for_deleting = instance.text
         self.items = [ItemConfirm(text='Без переноса задач')]
-        for category_name in self.objApp.notebook.get_categories_list():
+        for category_name in self.objApp.get_categories_list():
             if category_name != self.category_for_deleting:
                 self.items.append(ItemConfirm(text=category_name))
         self.items[0].set_icon()
@@ -108,7 +109,7 @@ class CategoriesListScreen(MDScreen):
     def set_categories_list(self):
         self.objApp = MDApp.get_running_app()
         self.categories_list.clear_widgets()
-        for category_name in self.objApp.notebook.get_categories_list():
+        for category_name in self.objApp.get_categories_list():
             self.categories_list.add_widget(CategoryItem(category_name))
 
     def __init__(self, **kwargs):
